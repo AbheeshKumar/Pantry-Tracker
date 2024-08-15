@@ -61,7 +61,6 @@ export default function Home() {
     const storage = getStorage();
     const pantryList = await Promise.all(
       docs.docs.map(async (doc) => {
-        console.log(doc.data());
         const imageRef = ref(
           storage,
           `images/${doc.id}_${doc.data().category}.jpg`
@@ -89,7 +88,7 @@ export default function Home() {
         await deleteDoc(docRef);
         await deleteObject(imageRef);
       } else {
-        await setDoc(docRef, { quantity: quantity - 1 });
+        await setDoc(docRef, { ...docSnap.data(), quantity: quantity - 1 });
       }
     }
     await updatePantry();
@@ -107,7 +106,10 @@ export default function Home() {
       const { quantity } = docSnap.data();
       await setDoc(docRef, { ...docSnap.data(), quantity: quantity + 1 });
     } else {
-      await setDoc(docRef, { quantity: quant, category: cat });
+      await setDoc(docRef, {
+        quantity: quant,
+        category: cat,
+      });
     }
     await updatePantry();
   };
@@ -125,7 +127,7 @@ export default function Home() {
       item.name.toLowerCase().includes(trimmedSearchItem)
     );
 
-    setPantry(filteredPantry);
+    setUpdatedPantry(filteredPantry);
   };
 
   const handleCategory = () => {
@@ -235,7 +237,7 @@ export default function Home() {
   const handleClose = () => setOpen(false);
 
   return (
-    <React.Fragment>
+    <Box maxWidth="100vw" height="100vh">
       <AppBar position="static">
         <Container maxWidth="xl">
           <Toolbar>
@@ -260,8 +262,7 @@ export default function Home() {
         </Container>
       </AppBar>
       <Box
-        width="100vw"
-        height="100vh"
+        height="100%"
         display="flex"
         flexDirection="column"
         justifyContent="center"
@@ -546,6 +547,6 @@ export default function Home() {
           )}
         </Stack>
       </Box>
-    </React.Fragment>
+    </Box>
   );
 }
