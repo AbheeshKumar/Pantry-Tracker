@@ -61,6 +61,7 @@ export default function Home() {
     const storage = getStorage();
     const pantryList = await Promise.all(
       docs.docs.map(async (doc) => {
+        console.log(doc.data());
         const imageRef = ref(
           storage,
           `images/${doc.id}_${doc.data().category}.jpg`
@@ -93,7 +94,7 @@ export default function Home() {
     }
     await updatePantry();
   };
-  console.log(pantry);
+
   const addItem = async (item) => {
     const name = item.name ? item.name : item;
     const quant = item.quantity ? item.quantity : 0;
@@ -103,8 +104,8 @@ export default function Home() {
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      const { quantity, category } = docSnap.data();
-      await setDoc(docRef, { quantity: quantity + 1 });
+      const { quantity } = docSnap.data();
+      await setDoc(docRef, { ...docSnap.data(), quantity: quantity + 1 });
     } else {
       await setDoc(docRef, { quantity: quant, category: cat });
     }
